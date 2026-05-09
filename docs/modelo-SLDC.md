@@ -1,4 +1,4 @@
-# ⚙️ Plataforma de Automação do SDLC com IA
+# ⚙️ Plataforma de Automação de SDLC com IA
 
 ### Arquitetura orientada a eventos baseada em GitHub e agentes inteligentes
 
