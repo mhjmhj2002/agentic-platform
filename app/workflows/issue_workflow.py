@@ -12,11 +12,17 @@ from app.project_context.context_registry import (
     get_project_path
 )
 
+from app.skills.plan_markdown_generator import generate_markdown_plan
+from app.skills.plan_file_writer import save_plan
+import json
+from app.github.github_commenter import post_github_comment
+
 
 async def handle_issue_opened(event: dict):
 
     repository = event.get("repository")
     issue_title = event.get("issue_title")
+    issue_number = event.get("issue_number")
 
     logger.info(
         f"Starting workflow for repo={repository}"
@@ -72,10 +78,31 @@ async def handle_issue_opened(event: dict):
 
     logger.info(f"Generated plan:\n{plan}")
 
+    clean_plan = plan.replace("```json", "").replace("```", "")
+
+    plan_json = json.loads(clean_plan)
+
+    markdown = generate_markdown_plan(
+        issue_title=issue_title,
+        issue_number=issue_number,
+        context=context,
+        plan=plan_json
+    )
+
+    saved_file = save_plan(
+        issue_number,
+        markdown
+    )
+
+    post_github_comment(
+        repository=repository,
+        issue_number=issue_number,
+        body=markdown
+    )
+
     return {
         "status": "planning_completed",
         "repository": repository,
         "issue": issue_title,
-        "context": context,
-        "plan": plan
+        "plan_file": saved_file
     }
