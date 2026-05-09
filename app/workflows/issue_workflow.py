@@ -70,6 +70,8 @@ async def handle_issue_opened(event: dict):
         context=context
     )
 
+    logger.info(f"Generated plan:\n{plan}")
+
     return {
         "status": "planning_completed",
         "repository": repository,
